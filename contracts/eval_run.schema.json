@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Sprayming/ai-platform/contracts/eval_run.schema.json",
+  "title": "EvalRun",
+  "description": "一次评测运行的统一产物。三个项目（driver / rag / ride）各自的 adapter 都翻译成这个结构，下游的基线对比、门禁与报告只认它。",
+  "type": "object",
+  "required": ["run_id", "suite", "project", "generated_at", "dataset", "metrics"],
+  "additionalProperties": false,
+  "properties": {
+    "run_id": {
+      "type": "string",
+      "description": "全局唯一，约定 <UTC 时间戳>-<suite>",
+      "pattern": "^[0-9T:\\-]+-[a-z0-9.]+$"
+    },
+    "suite": {
+      "type": "string",
+      "description": "评测套件标识，如 driver.intent / rag.ragas / ride.nl2sql",
+      "pattern": "^[a-z0-9]+\\.[a-z0-9_]+$"
+    },
+    "project": {
+      "type": "string",
+      "description": "产物来自哪个仓库"
+    },
+    "generated_at": { "type": "string" },
+    "mode": {
+      "type": "string",
+      "description": "该套件的运行模式，如 gold_only / with_llm"
+    },
+    "dataset": {
+      "type": "object",
+      "required": ["name", "cases"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string" },
+        "version": { "type": "string" },
+        "sha256": { "type": "string" },
+        "cases": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "model": { "type": ["string", "null"] },
+    "metrics": {
+      "type": "object",
+      "description": "指标名 -> { value, higher_is_better, unit? }。value 为 null 表示本次未产出该指标。",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "required": ["value", "higher_is_better"],
+        "additionalProperties": false,
+        "properties": {
+          "value": { "type": ["number", "null"] },
+          "higher_is_better": { "type": "boolean" },
+          "unit": { "type": "string" }
+        }
+      }
+    },
+    "per_case": {
+      "type": "array",
+      "description": "可选的逐条记录；只记录失败项也可以，passed=false 即代表该 case 未通过。",
+      "items": {
+        "type": "object",
+        "required": ["case_id", "passed"],
+        "additionalProperties": false,
+        "properties": {
+          "case_id": { "type": "string" },
+          "passed": { "type": "boolean" },
+          "latency_ms": { "type": ["number", "null"] },
+          "detail": { "type": "object" }
+        }
+      }
+    },
+    "git_rev": { "type": ["string", "null"] },
+    "source_artifact": {
+      "type": "string",
+      "description": "原始产物路径，便于回溯到项目内那份报告"
+    }
+  }
+}

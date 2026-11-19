@@ -1,0 +1,252 @@
+{
+  "run_id": "20261119T073001-ride.nl2sql",
+  "suite": "ride.nl2sql",
+  "project": "ride-hailing-analytics-system",
+  "generated_at": "2026-11-19T15:30:01",
+  "mode": "gold_only",
+  "dataset": {
+    "name": "ride_nl2sql",
+    "version": "v1",
+    "sha256": "3213d89ce27b",
+    "cases": 22
+  },
+  "model": null,
+  "metrics": {
+    "gold_pass_rate": {
+      "value": 1.0,
+      "higher_is_better": true
+    },
+    "execution_accuracy": {
+      "value": null,
+      "higher_is_better": true
+    },
+    "semantic_accuracy": {
+      "value": null,
+      "higher_is_better": true
+    }
+  },
+  "per_case": [
+    {
+      "case_id": "Q01",
+      "passed": true,
+      "detail": {
+        "category": "single_table_aggregation",
+        "question": "订单总数是多少？",
+        "pred_sql": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "Q02",
+      "passed": true,
+      "detail": {
+        "category": "single_table_aggregation",
+        "question": "所有订单的总金额是多少？",
+        "pred_sql": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "Q03",
+      "passed": true,
+      "detail": {
+        "category": "single_table_aggregation",
+        "question": "平均订单金额是多少？",
+        "pred_sql": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "Q04",
+      "passed": true,
+      "detail": {
+        "category": "single_table_aggregation",
+        "question": "金额最高的那笔订单是多少？",
+        "pred_sql": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "Q05",
+      "passed": true,
+      "detail": {
+        "category": "filtering",
+        "question": "已完成的订单有多少单？",
+        "pred_sql": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "Q06",
+      "passed": true,
+      "detail": {
+        "category": "filtering",
+        "question": "已退款的订单有多少单？",
+        "pred_sql": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "Q07",
+      "passed": true,
+      "detail": {
+        "category": "filtering",
+        "question": "金额大于 100 元的订单有多少单？",
+        "pred_sql": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "Q08",
+      "passed": true,
+      "detail": {
+        "category": "time_filter",
+        "question": "最近 7 天的订单数量是多少？",
+        "pred_sql": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "Q09",
+      "passed": true,
+      "detail": {
+        "category": "time_filter",
+        "question": "最近 7 天的订单总金额是多少？",
+        "pred_sql": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "Q10",
+      "passed": true,
+      "detail": {
+        "category": "join",
+        "question": "各城市的订单总数分别是多少？",
+        "pred_sql": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "Q11",
+      "passed": true,
+      "detail": {
+        "category": "join",
+        "question": "各司机完成的订单数分别是多少（按司机名，取前 10）？",
+        "pred_sql": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "Q12",
+      "passed": true,
+      "detail": {
+        "category": "join",
+        "question": "各卡券类型一共发放了多少张？",
+        "pred_sql": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "Q13",
+      "passed": true,
+      "detail": {
+        "category": "join",
+        "question": "各卡券类型分别被核销了多少张？",
+        "pred_sql": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "Q14",
+      "passed": true,
+      "detail": {
+        "category": "topn",
+        "question": "按总订单金额排名，金额最高的前 5 名司机是谁？",
+        "pred_sql": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "Q15",
+      "passed": true,
+      "detail": {
+        "category": "topn",
+        "question": "发放数量最多的前 3 种卡券类型是什么？",
+        "pred_sql": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "Q16",
+      "passed": true,
+      "detail": {
+        "category": "redemption_rate",
+        "question": "各卡券类型的核销率（核销数 / 发放数）分别是多少？",
+        "pred_sql": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "Q17",
+      "passed": true,
+      "detail": {
+        "category": "redemption_rate",
+        "question": "整体卡券核销率是多少？",
+        "pred_sql": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "Q18",
+      "passed": true,
+      "detail": {
+        "category": "subquery",
+        "question": "金额高于平均订单金额的订单有多少单？",
+        "pred_sql": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "Q19",
+      "passed": true,
+      "detail": {
+        "category": "subquery",
+        "question": "核销率高于整体平均水平的卡券类型有哪些？",
+        "pred_sql": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "Q20",
+      "passed": true,
+      "detail": {
+        "category": "dimension",
+        "question": "各司机等级（新手/普通/资深/金牌/钻石）的司机数量分别是多少？",
+        "pred_sql": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "Q21",
+      "passed": true,
+      "detail": {
+        "category": "dimension",
+        "question": "各司机等级的平均订单金额分别是多少？",
+        "pred_sql": null,
+        "error": null
+      }
+    },
+    {
+      "case_id": "Q22",
+      "passed": true,
+      "detail": {
+        "category": "filtering",
+        "question": "状态为已使用（used）的卡券有多少张？",
+        "pred_sql": null,
+        "error": null
+      }
+    }
+  ],
+  "source_artifact": "/Users/sprayming/Documents/Trae-CN/temp_20261116_01/Courses/ride-hailing-analytics-system/eval/nl2sql/reports/latest.json",
+  "git_rev": "eb05413"
+}

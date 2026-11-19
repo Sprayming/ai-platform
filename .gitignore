@@ -1,0 +1,8 @@
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+
+# 运行产物：可复现，不入版本库
+reports/*.json
+reports/*.html

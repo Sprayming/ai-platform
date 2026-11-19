@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Sprayming/ai-platform/contracts/eval_case.schema.json",
+  "title": "EvalCase",
+  "description": "单条评测用例的统一契约。三个项目现有的题目格式不同（yml / json / 带 expect 断言），adapter 只负责映射到这四个必需字段，不要求项目改内部结构。",
+  "type": "object",
+  "required": ["case_id", "input", "expected", "tags"],
+  "additionalProperties": false,
+  "properties": {
+    "case_id": {
+      "type": "string",
+      "description": "套件内唯一，跨版本不应复用"
+    },
+    "input": {
+      "type": "string",
+      "description": "喂给被测系统的输入（一句话 / 一个问题 / 一张图，文本先行）"
+    },
+    "expected": {
+      "type": "object",
+      "description": "期望结果的自由结构：标签、gold SQL、关键词、最小引用数等"
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "只用于诊断归因，不参与评分"
+    },
+    "version": {
+      "type": "string",
+      "description": "数据集版本；改动题目必须升版本，否则历史指标不可比"
+    },
+    "source": {
+      "type": "string",
+      "description": "原始题目在项目内的位置，便于回溯"
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "generated_at": "2026-11-19T15:28:31",
+  "mode": "with_llm",
+  "model": "deepseek-chat",
+  "dataset": { "name": "ride_nl2sql", "version": "v1", "sha256": "3213d89ce27b", "cases": 22, "seed": 42 },
+  "metrics": { "gold_pass_rate": 1.0, "execution_accuracy": 0.6818, "semantic_accuracy": null },
+  "cases": [
+    { "case_id": "Q01", "category": "single_table_aggregation", "question": "订单总数", "passed": true, "pred_sql": "SELECT COUNT(*) FROM orders" },
+    { "case_id": "Q09", "category": "time_filter", "question": "最近 7 天订单总金额", "passed": false, "pred_sql": "SELECT SUM(order_amount) FROM orders WHERE status='completed'" }
+  ]
+}

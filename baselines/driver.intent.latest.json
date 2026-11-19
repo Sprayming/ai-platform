@@ -1,0 +1,53 @@
+{
+  "run_id": "20261119T073001-driver.intent",
+  "suite": "driver.intent",
+  "project": "driver-coupon-refund-agent",
+  "generated_at": "2026-11-08T17:59:00",
+  "mode": "hybrid",
+  "dataset": {
+    "name": "driver_intent",
+    "version": "unknown",
+    "sha256": "",
+    "cases": 56
+  },
+  "model": "Qwen/Qwen2.5-7B-Instruct",
+  "metrics": {
+    "accuracy": {
+      "value": 0.9821,
+      "higher_is_better": true
+    },
+    "macro_f1": {
+      "value": 0.9813,
+      "higher_is_better": true
+    },
+    "latency_avg_ms": {
+      "value": 247.4,
+      "higher_is_better": false,
+      "unit": "ms"
+    },
+    "latency_p95_ms": {
+      "value": 552.0,
+      "higher_is_better": false,
+      "unit": "ms"
+    },
+    "error_rate": {
+      "value": 0.0,
+      "higher_is_better": false
+    }
+  },
+  "per_case": [
+    {
+      "case_id": "unknown-06",
+      "passed": false,
+      "detail": {
+        "expected": "unknown",
+        "actual": "refund_request",
+        "tags": "boundary",
+        "kind": null,
+        "error": null
+      }
+    }
+  ],
+  "source_artifact": "/Users/sprayming/Documents/Trae-CN/temp_20261116_01/Courses/driver-coupon-refund-agent/backend/evals/reports/intent_bakeoff_final.json",
+  "git_rev": "8ec1d3b"
+}

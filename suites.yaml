@@ -1,0 +1,31 @@
+# 评测套件注册表
+#
+# 每个套件声明三件事：
+#   project   —— 产物来自哪个仓库（相对本仓库根目录）
+#   adapter   —— 用哪个翻译器（evalhub/adapters/<adapter>.py）
+#   artifact  —— 读哪个产物；command 非空时先跑 command 再生产物
+#
+# 约定：evalhub 不关心项目内部怎么跑评测，只认「命令 + 产物」。
+# 想换评测实现，改这里，不改 evalhub 代码。
+
+defaults:
+  report_dir: reports
+  baseline_dir: baselines
+
+suites:
+  driver.intent:
+    project: ../driver-coupon-refund-agent
+    adapter: driver_intent
+    artifact: backend/evals/reports/intent_bakeoff_final.json
+    # 已有产物就直接读；要重跑就把下面这行解开
+    # command: .venv/bin/python -m backend.evals.intent_bakeoff --provider hybrid
+    options:
+      provider: hybrid
+
+  ride.nl2sql:
+    project: ../ride-hailing-analytics-system
+    adapter: ride_nl2sql
+    artifact: eval/nl2sql/reports/latest.json
+    # 无 LLM key 时只校验 gold SQL，有 key 时加 --with-llm 跑真实准确率
+    command: .venv/bin/python eval/nl2sql/run_eval.py --seed 42 --json-out eval/nl2sql/reports/latest.json
+    options: {}
