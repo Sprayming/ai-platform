@@ -1,8 +1,8 @@
 {
-  "run_id": "20261119T073001-ride.nl2sql",
+  "run_id": "20261119T081423-ride.nl2sql",
   "suite": "ride.nl2sql",
   "project": "ride-hailing-analytics-system",
-  "generated_at": "2026-11-19T15:30:01",
+  "generated_at": "2026-11-19T16:14:23",
   "mode": "gold_only",
   "dataset": {
     "name": "ride_nl2sql",
@@ -248,5 +248,5 @@
     }
   ],
   "source_artifact": "/Users/sprayming/Documents/Trae-CN/temp_20261116_01/Courses/ride-hailing-analytics-system/eval/nl2sql/reports/latest.json",
-  "git_rev": "eb05413"
+  "git_rev": "305553f"
 }

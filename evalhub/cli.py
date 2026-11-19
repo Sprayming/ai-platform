@@ -74,6 +74,8 @@ def run_suite(name: str, cfg: dict, provider: str | None = None) -> dict:
         )
 
     options = dict(cfg.get("options") or {})
+    # adapter 可能需要读项目内其它文件（比如金标集算数据集指纹）
+    options.setdefault("project_path", str(project))
     if provider:
         options["provider"] = provider
 

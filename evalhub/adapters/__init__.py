@@ -11,6 +11,7 @@ from importlib import import_module
 # suite -> adapter 模块名（与 suites.yaml 的 adapter 字段一致）
 _ADAPTER_MODULES = {
     "driver_intent": "evalhub.adapters.driver_intent",
+    "rag_ragas": "evalhub.adapters.rag_ragas",
     "ride_nl2sql": "evalhub.adapters.ride_nl2sql",
 }
 

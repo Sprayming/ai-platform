@@ -1,0 +1,35 @@
+{
+  "run_id": "20261119T081423-rag.ragas",
+  "suite": "rag.ragas",
+  "project": "rag-knowledge-base",
+  "generated_at": "",
+  "mode": "full_hybrid",
+  "dataset": {
+    "name": "rag_golden",
+    "version": "unversioned",
+    "sha256": "990dc9035915",
+    "cases": 31
+  },
+  "model": null,
+  "metrics": {
+    "faithfulness": {
+      "value": 1.0,
+      "higher_is_better": true
+    },
+    "answer_relevancy": {
+      "value": 0.9328748272923221,
+      "higher_is_better": true
+    },
+    "context_precision": {
+      "value": 0.8979999999591222,
+      "higher_is_better": true
+    },
+    "context_recall": {
+      "value": 0.92,
+      "higher_is_better": true
+    }
+  },
+  "per_case": [],
+  "source_artifact": "/Users/sprayming/Documents/Trae-CN/temp_20261116_01/Courses/rag-knowledge-base/evaluation_ablation_full_hybrid.json",
+  "git_rev": "4ecb5c5"
+}

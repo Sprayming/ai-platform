@@ -22,6 +22,16 @@ suites:
     options:
       provider: hybrid
 
+  rag.ragas:
+    project: ../rag-knowledge-base
+    adapter: rag_ragas
+    # 检索配置消融的产物；换成 evaluation_ablation_dense_only.json 即可对比单路检索
+    artifact: evaluation_ablation_full_hybrid.json
+    # 跑一次真实评测需要：起服务 + ragas + 模型 key，所以默认只读既有产物
+    # command: .venv/bin/python scripts/run_ragas_eval.py
+    options:
+      dataset: tests/golden_test_set.json
+
   ride.nl2sql:
     project: ../ride-hailing-analytics-system
     adapter: ride_nl2sql

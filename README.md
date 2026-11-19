@@ -24,10 +24,9 @@ evalhub gate --all         # 按基线判定，退化就退出码 1（CI 用）
    eval_case.schema.json
               │
               ▼
-   ┌──────────────────────────────────────┐
-   │  adapter（每个项目 30 行翻译逻辑）      │
-   │  driver_intent  ·  ride_nl2sql        │
-   └──────────────────┬───────────────────┘
+   adapters（每个项目 30~60 行翻译逻辑）
+   driver_intent · rag_ragas · ride_nl2sql
+                      │
                       ▼
              evalhub run --all
                       │
@@ -116,9 +115,12 @@ p95 延迟波动 20ms 只是噪声。一条规则同时管住两类指标，才�
 | 套件 | 项目 | 评测集 | 指标 |
 |---|---|---|---|
 | `driver.intent` | driver-coupon-refund-agent | 56 条意图样本 | accuracy / macro-F1 / p95 |
+| `rag.ragas` | rag-knowledge-base | 31 条金标问答 | faithfulness / answer_relevancy / context_precision / context_recall |
 | `ride.nl2sql` | ride-hailing-analytics-system | 22 条 NL2SQL | gold_pass_rate / execution_accuracy |
 
-`rag.ragas` 待接入：它要加载 embedding 模型，属于最慢的一环，放在最后。
+三个项目的产物格式互不相同：driver 写多 provider 的 JSON 报告，rag 有两种历史格式
+（RAGAS 四指标 / 问答闸门通过率），ride 原本只往终端打印。adapter 把它们统一收口，
+**没有要求任何一个项目重写自己的评测脚本**。
 
 ## 已知边界
 
@@ -126,3 +128,6 @@ p95 延迟波动 20ms 只是噪声。一条规则同时管住两类指标，才�
 - 没有数据库、没有 Web 服务；报告是静态 HTML
 - 逐条结果只保证记录失败样本，不保证全量逐条落盘
 - 不做指标自动修复或归因，归因仍靠各项目自己的分析
+- `rag.ragas` 的消融产物没有记录实际评估条数，卡片展示的是金标集声明条数（31）；
+  真实消融跑的是其中一部分题，重跑一次即可自动对齐
+

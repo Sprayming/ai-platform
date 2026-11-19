@@ -1,0 +1,10 @@
+{
+  "total": 10,
+  "passed": 9,
+  "pass_rate": 90.0,
+  "avg_duration_ms": 812.4,
+  "results": [
+    { "no": 1, "query": "试用期最长多久", "passed": true, "duration_ms": 800.0, "citations": 2, "reasons": [] },
+    { "no": 2, "query": "违约金上限", "passed": false, "duration_ms": 900.0, "citations": 0, "reasons": ["缺失关键词: ['违约金']", "引用不足: 0 < 1"] }
+  ]
+}

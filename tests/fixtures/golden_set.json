@@ -1,0 +1,8 @@
+{
+  "_meta": { "description": "fixture golden set", "total": 3 },
+  "questions": [
+    { "id": "q1", "question": "q1", "ground_truth": "a1" },
+    { "id": "q2", "question": "q2", "ground_truth": "a2" },
+    { "id": "q3", "question": "q3", "ground_truth": "a3" }
+  ]
+}
