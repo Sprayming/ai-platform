@@ -146,7 +146,7 @@ table:sha256(rows) → 再对全部表求一次 dataset_sha256
 |---|---|---|---|
 | `driver.intent` | driver-coupon-refund-agent | 56 条意图样本 | accuracy / macro-F1 / p95 |
 | `rag.ragas` | rag-knowledge-base | 31 条金标问答 | faithfulness / answer_relevancy / context_precision / context_recall |
-| `ride.nl2sql` | ride-hailing-analytics-system | 22 条 NL2SQL | gold_pass_rate / execution_accuracy |
+| `ride.nl2sql` | ride-hailing-analytics-system | 22 条 NL2SQL | gold_pass_rate / execution_accuracy / semantic_accuracy / semantic_coverage |
 
 | 数据集 | 类型 | 规模 | 来源 |
 |---|---|---|---|

@@ -21,7 +21,11 @@
       "higher_is_better": true
     },
     "semantic_accuracy": {
-      "value": null,
+      "value": 1.0,
+      "higher_is_better": true
+    },
+    "semantic_coverage": {
+      "value": 0.590909,
       "higher_is_better": true
     }
   },

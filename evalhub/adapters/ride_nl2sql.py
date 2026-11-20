@@ -29,6 +29,7 @@ def adapt(artifact: str | Path, options: dict | None = None) -> dict:
         "gold_pass_rate": metric(raw_metrics.get("gold_pass_rate"), True),
         "execution_accuracy": metric(raw_metrics.get("execution_accuracy"), True),
         "semantic_accuracy": metric(raw_metrics.get("semantic_accuracy"), True),
+        "semantic_coverage": metric(raw_metrics.get("semantic_coverage"), True),
     }
 
     per_case = [
