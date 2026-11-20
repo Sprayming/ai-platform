@@ -1,0 +1,12 @@
+{
+  "name": "driver_intent_cases",
+  "version": "v1",
+  "kind": "file",
+  "project": "../driver-coupon-refund-agent",
+  "source": "backend/evals/intent_cases.yml",
+  "created_at": "2026-11-20T09:49:46",
+  "seed": null,
+  "sha256": "53b0679aba7ac94c",
+  "bytes": 8567,
+  "cases": 56
+}

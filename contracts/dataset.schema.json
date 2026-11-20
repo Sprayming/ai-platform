@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Sprayming/ai-platform/contracts/dataset.schema.json",
+  "title": "DatasetManifest",
+  "description": "数据集登记契约。声明数据从哪来、怎么复现、包含哪些表/文件、谁负责。快照与校验都以它为准。",
+  "type": "object",
+  "required": ["name", "version", "project", "kind", "source", "owner"],
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]+$",
+      "description": "全局唯一的数据集标识，小写蛇形"
+    },
+    "version": {
+      "type": "string",
+      "description": "数据集版本；内容变了必须升版本，否则跨版本指标不可比"
+    },
+    "project": {
+      "type": "string",
+      "description": "数据来自哪个仓库（相对本仓库根目录）"
+    },
+    "kind": {
+      "type": "string",
+      "enum": ["sqlite", "file"],
+      "description": "sqlite：按表做内容哈希；file：按整文件哈希"
+    },
+    "source": {
+      "type": "string",
+      "description": "产物路径（相对 project）"
+    },
+    "tables": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "kind=sqlite 时参与快照与校验的表；为空表示整库所有业务表"
+    },
+    "seed": {
+      "type": ["integer", "null"],
+      "description": "数据生成种子；有种子才谈得上可复现"
+    },
+    "generator": {
+      "type": ["string", "null"],
+      "description": "生成脚本（相对 project），没有就是线上导出或人工整理"
+    },
+    "count_path": {
+      "type": ["string", "null"],
+      "description": "kind=file 时，用点号路径指出条目数组位置，如 questions"
+    },
+    "owner": {
+      "type": "string",
+      "description": "口径与内容的责任人"
+    },
+    "notes": { "type": "string" }
+  }
+}

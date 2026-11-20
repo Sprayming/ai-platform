@@ -1,0 +1,10 @@
+name: driver_intent_cases
+version: v1
+project: ../driver-coupon-refund-agent
+kind: file
+source: backend/evals/intent_cases.yml
+count_path: cases
+seed: null
+generator: null
+owner: 周明
+notes: 56 条司机口语意图样本，自建非盲测。改题（增删改）必须升 version，旧版本保留，否则跨版本准确率不可比。

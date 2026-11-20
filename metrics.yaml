@@ -1,0 +1,172 @@
+# 指标口径字典
+#
+# 存在的理由：同一个词在不同团队嘴里不是同一个数。
+# 「核销率」按发放数、领取数还是已结算订单数做分母，能差出好几个百分点，
+# 而这几个百分点直接决定下一轮补贴预算。
+#
+# 规则（由 `datahub metrics check` 强制）：
+#   1. 每个口径必须写清分子和分母，写不清的不允许登记
+#   2. 有多个口径时必须指定 canonical（默认口径）
+#   3. 必须有负责人——没人负责的口径一定会漂
+#   4. 改动要留痕，写进 revisions
+
+version: v1
+updated_at: "2026-11-19"
+owner: 周明
+
+metrics:
+  - id: redemption_rate
+    name: 卡券核销率
+    unit: ratio
+    owner: 周明
+    canonical: issued
+    aliases: [核销率, 券核销率]
+    definition: 分子恒为已核销券数，分母随口径变化。三个口径不可混用，对外报告必须写明用的是哪一个。
+    variants:
+      - key: issued
+        name: 发放口径（运营默认）
+        numerator: 已核销券数
+        denominator: 已发放券数
+        formula: COUNT(coupons.status='used') / COUNT(coupons)
+        scope: 运营周报、活动复盘；与 ride 项目 coupon_types 表的口径一致
+      - key: claimed
+        name: 领取口径
+        numerator: 已核销券数
+        denominator: 已领取券数（不含未领取）
+        formula: COUNT(status='used') / COUNT(status IN ('claimed','used'))
+        scope: 渠道发放质量评估；发出但没人领的券不进分母
+      - key: settled
+        name: 结算口径（财务）
+        numerator: 已核销券数
+        denominator: 已结算订单数
+        formula: COUNT(redemptions) / COUNT(orders WHERE status='completed')
+        scope: 财务对账与补贴结算；数值天然高于运营口径，禁止对外汇报
+    revisions:
+      - date: "2026-11-19"
+        change: 明确三种口径，指定发放口径为默认，财务口径单独命名 settled
+        by: 周明
+      - date: "2026-11-14"
+        change: 修正报表里拿订单数当分母的混用问题
+        by: 周明
+
+  - id: order_completion_rate
+    name: 订单完成率
+    unit: ratio
+    owner: 周明
+    canonical: all_orders
+    aliases: [完成率, 完单率]
+    definition: 完成单数占订单总数的比例；是否把取消单计入分母是最常见的分歧点。
+    variants:
+      - key: all_orders
+        name: 全量口径（默认）
+        numerator: 已完成订单数
+        denominator: 全部订单数（含取消、退款）
+        formula: COUNT(status='completed') / COUNT(orders)
+        scope: 对外经营看板
+      - key: dispatched
+        name: 派单口径
+        numerator: 已完成订单数
+        denominator: 已派单订单数（不含未派单）
+        formula: COUNT(status='completed') / COUNT(status != 'created')
+        scope: 调度效率分析；未派出去的订单不算司机的责任
+    revisions:
+      - date: "2026-11-19"
+        change: 新增派单口径，明确全量口径为默认
+        by: 周明
+
+  - id: subsidy_roi
+    name: 补贴 ROI
+    unit: ratio
+    owner: 周明
+    canonical: incremental
+    aliases: [补贴投产比, ROI]
+    definition: 补贴带来的 GMV 增量与补贴成本的比值。难点不在公式，在「增量」怎么归因——这里只认同城同期对照。
+    variants:
+      - key: incremental
+        name: 增量口径（默认）
+        numerator: 实验组 GMV 增量（对照同期同城基线）
+        denominator: 补贴成本
+        formula: (实验组 GMV − 基线 GMV) / 补贴成本
+        scope: 活动立项与复盘；不做对照的 ROI 不认
+      - key: gross
+        name: 粗口径
+        numerator: 活动期 GMV
+        denominator: 补贴成本
+        formula: 活动期 GMV / 补贴成本
+        scope: 仅用于快速排序候选活动，不能用于结案
+    revisions:
+      - date: "2026-11-19"
+        change: 拆出粗口径，结案只用增量口径
+        by: 周明
+
+  - id: intent_accuracy
+    name: 意图识别准确率
+    unit: ratio
+    owner: 周明
+    canonical: valid
+    aliases: [意图准确率]
+    definition: 主意图完全命中才算对。provider 报错的样本是否计入分母，会显著影响数字——默认剔除，同时单独报错误率。
+    variants:
+      - key: valid
+        name: 有效样本口径（默认）
+        numerator: 意图命中条数
+        denominator: 有效样本数（剔除 provider 调用失败）
+        formula: correct / valid_total
+        scope: 模型选型对比；必须同时给出 error_rate
+      - key: all
+        name: 全量口径
+        numerator: 意图命中条数
+        denominator: 全部样本数
+        formula: correct / total
+        scope: 对外 SLA 承诺，把失败也当成失败
+    revisions:
+      - date: "2026-11-13"
+        change: 429 限流导致兜底静默回退，补记 error_rate 并区分两种口径
+        by: 周明
+
+  - id: ragas_faithfulness
+    name: RAG 忠实度
+    unit: ratio
+    owner: 周明
+    canonical: ragas
+    aliases: [忠实度]
+    definition: 答案中能被检索上下文支持的陈述所占比例（RAGAS 定义）。低于阈值时宁可拒答，也不许编造。
+    variants:
+      - key: ragas
+        name: RAGAS 口径（默认）
+        numerator: 可被上下文支持的陈述数
+        denominator: 答案陈述总数
+        formula: supported_statements / total_statements
+        scope: 知识库问答的幻觉拦截；按金标集逐题计算后取平均
+    revisions:
+      - date: "2026-11-10"
+        change: 从 6 题试跑口径切到 25 题金标口径，数字不可与前版直接比较
+        by: 周明
+
+  - id: nl2sql_execution_accuracy
+    name: NL2SQL 执行准确率
+    unit: ratio
+    owner: 周明
+    canonical: strict
+    aliases: [执行准确率, 执行精度]
+    definition: 以「生成的 SQL 与 gold SQL 在同一份数据上的执行结果集是否相等」判定，不做字符串比对。列数多余但数值正确算不算对，是两种口径的分界。
+    variants:
+      - key: strict
+        name: 严格口径（默认）
+        numerator: 结果集完全相等的题数
+        denominator: 全部评测题数
+        formula: matched / total_cases
+        scope: 对外报告与门禁基线
+      - key: relaxed
+        name: 宽松口径
+        numerator: 核心指标列取值正确的题数
+        denominator: 全部评测题数
+        formula: matched_core_columns / total_cases
+        scope: 仅用于归因分析，不能替代严格口径
+    revisions:
+      - date: "2026-11-19"
+        change: 明确严格/宽松两种口径，门禁只用严格口径
+        by: 周明
+      - date: "2026-08-16"
+        change: 首次跑出严格执行准确率 15/22，并逐题归因
+        by: 周明

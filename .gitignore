@@ -6,3 +6,6 @@ __pycache__/
 # 运行产物：可复现，不入版本库
 reports/*.json
 reports/*.html
+
+# 快照载荷可重建，不入库；元数据（*.meta.json）入库，供 CI 比对漂移
+snapshots/*.payload.*

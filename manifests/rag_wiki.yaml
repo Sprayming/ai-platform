@@ -1,0 +1,13 @@
+name: rag_wiki
+version: v1
+project: ../rag-knowledge-base
+kind: sqlite
+source: data/wiki.db
+tables:
+  - wiki_pages
+  - wiki_meta
+  - review_log
+seed: null
+generator: null
+owner: 周明
+notes: 知识页、元信息与审核记录。页面由人工整理+Few-shot 生成，没有生成脚本，所以不声明 seed；改动内容必须升版本。

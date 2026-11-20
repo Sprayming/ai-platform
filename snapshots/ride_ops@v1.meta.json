@@ -1,0 +1,77 @@
+{
+  "name": "ride_ops",
+  "version": "v1",
+  "kind": "sqlite",
+  "project": "../ride-hailing-analytics-system",
+  "source": "data/ride_hailing.db",
+  "created_at": "2026-11-20T09:49:46",
+  "seed": 42,
+  "tables": {
+    "drivers": {
+      "rows": 0,
+      "columns": [
+        "id",
+        "name",
+        "phone",
+        "city",
+        "register_date",
+        "driver_level",
+        "status"
+      ],
+      "sha256": "a71518107f3a70bc"
+    },
+    "coupon_types": {
+      "rows": 0,
+      "columns": [
+        "id",
+        "name",
+        "face_value",
+        "min_order_amount",
+        "valid_days",
+        "category"
+      ],
+      "sha256": "21142094c3e2f03f"
+    },
+    "coupons": {
+      "rows": 0,
+      "columns": [
+        "id",
+        "coupon_type_id",
+        "driver_id",
+        "issued_at",
+        "expired_at",
+        "status"
+      ],
+      "sha256": "3a4485fd28b7a48e"
+    },
+    "orders": {
+      "rows": 0,
+      "columns": [
+        "id",
+        "driver_id",
+        "order_amount",
+        "coupon_id",
+        "discount_amount",
+        "final_amount",
+        "order_time",
+        "pickup_location",
+        "dropoff_location",
+        "distance_km",
+        "status"
+      ],
+      "sha256": "1c168adb00d208e4"
+    },
+    "redemptions": {
+      "rows": 0,
+      "columns": [
+        "id",
+        "coupon_id",
+        "order_id",
+        "redeemed_at",
+        "amount"
+      ],
+      "sha256": "d162fb2a7a9dbccb"
+    }
+  },
+  "dataset_sha256": "c81b805280a9e083"
+}

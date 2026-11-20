@@ -1,0 +1,10 @@
+name: rag_golden
+version: v1
+project: ../rag-knowledge-base
+kind: file
+source: tests/golden_test_set.json
+count_path: questions
+seed: null
+generator: null
+owner: 周明
+notes: 31 条金标问答，faithfulness / context_precision / context_recall 的评测基准。题目改动必须升 version。
