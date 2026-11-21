@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/Sprayming/ai-platform/contracts/dataset.schema.json",
+  "$id": "https://github.com/Sprayming/ai-data-eval-hub/contracts/dataset.schema.json",
   "title": "DatasetManifest",
   "description": "数据集登记契约。声明数据从哪来、怎么复现、包含哪些表/文件、谁负责。快照与校验都以它为准。",
   "type": "object",

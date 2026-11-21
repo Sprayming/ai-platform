@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/Sprayming/ai-platform/contracts/eval_run.schema.json",
+  "$id": "https://github.com/Sprayming/ai-data-eval-hub/contracts/eval_run.schema.json",
   "title": "EvalRun",
   "description": "一次评测运行的统一产物。三个项目（driver / rag / ride）各自的 adapter 都翻译成这个结构，下游的基线对比、门禁与报告只认它。",
   "type": "object",
