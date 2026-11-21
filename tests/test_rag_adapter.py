@@ -29,7 +29,8 @@ def test_ragas_format_maps_four_metrics():
 def test_dataset_fingerprint_from_golden_set():
     run = rag_ragas.adapt(FIXTURES / "rag_ragas.json", OPTIONS)
     assert run["dataset"]["cases"] == 3
-    assert len(run["dataset"]["sha256"]) == 12
+    # 位数与 datahub 快照一致，两层才能直接对指纹
+    assert len(run["dataset"]["sha256"]) == 16
     assert run["dataset"]["version"] == "unversioned"
 
 

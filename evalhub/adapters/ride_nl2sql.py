@@ -61,6 +61,7 @@ def adapt(artifact: str | Path, options: dict | None = None) -> dict:
             "cases": int(dataset.get("cases") or len(per_case)),
         },
         "model": raw.get("model") or None,
+        "experiment": {"config": raw.get("config") or {}},
         "metrics": metrics,
         "per_case": per_case,
         "source_artifact": str(path),

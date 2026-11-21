@@ -7,4 +7,9 @@ count_path: questions
 seed: null
 generator: null
 owner: 周明
+consumers:
+  - suite: rag.ragas
+    role: evaluation_set
+quality:
+  min_cases: 1
 notes: 31 条金标问答，faithfulness / context_precision / context_recall 的评测基准。题目改动必须升 version。

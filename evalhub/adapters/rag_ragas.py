@@ -44,7 +44,7 @@ def _dataset_meta(project_path: Path, dataset_rel: str | None) -> dict:
     return {
         "name": "rag_golden",
         "version": str(meta.get("version") or "unversioned"),
-        "sha256": hashlib.sha256(path.read_bytes()).hexdigest()[:12],
+        "sha256": hashlib.sha256(path.read_bytes()).hexdigest()[:16],
         "cases": int(meta.get("total") or len(questions or [])),
     }
 

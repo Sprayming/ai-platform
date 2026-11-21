@@ -7,4 +7,9 @@ count_path: cases
 seed: null
 generator: null
 owner: 周明
+consumers:
+  - suite: driver.intent
+    role: evaluation_set
+quality:
+  min_cases: 1
 notes: 56 条司机口语意图样本，自建非盲测。改题（增删改）必须升 version，旧版本保留，否则跨版本准确率不可比。

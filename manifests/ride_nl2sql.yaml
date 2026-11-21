@@ -1,0 +1,15 @@
+name: ride_nl2sql
+version: v2
+project: ../ride-hailing-analytics-system
+kind: file
+source: eval/nl2sql/evaluation_set.json
+count_path: cases
+seed: null
+generator: null
+owner: 周明
+consumers:
+  - suite: ride.nl2sql
+    role: evaluation_set
+quality:
+  min_cases: 1
+notes: 22 条 NL2SQL 题目与 gold SQL。题目、期望或 gold SQL 改动必须升 version；其指纹与执行数据库指纹分别记录。

@@ -1,0 +1,2 @@
+{"run_id": "20261120T071952-ride.nl2sql", "generated_at": "2026-11-20T15:19:52", "git_rev": "dbe5580", "mode": "gold_only", "dataset_sha256": "38ca064c09e1", "metrics": {"gold_pass_rate": 1.0, "execution_accuracy": null, "semantic_accuracy": 1.0, "semantic_coverage": 0.5909090909090909}}
+{"run_id": "20261121T032558-ride.nl2sql", "generated_at": "2026-11-21T11:25:58", "git_rev": "dbe5580", "mode": "gold_only", "dataset_sha256": "3b46ab027d05eb52", "metrics": {"gold_pass_rate": 1.0, "execution_accuracy": null, "semantic_accuracy": 1.0, "semantic_coverage": 0.5909090909090909}}

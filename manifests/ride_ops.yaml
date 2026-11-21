@@ -12,4 +12,6 @@ tables:
 seed: 42
 generator: scripts/generate_data.py
 owner: 周明
-notes: 网约车运营演示库。seed 固定为 42，60 司机 / 800 订单 / 400 卡券；换机器重跑脚本即可得到同一份数据。
+quality:
+  non_empty_tables: [drivers, coupon_types, coupons, orders, redemptions]
+notes: 网约车运营演示库，用于业务指标 SQL 对账，不是 NL2SQL 评测执行库。seed 固定为 42，60 司机 / 800 订单 / 400 卡券；换机器重跑脚本即可得到同一份数据。

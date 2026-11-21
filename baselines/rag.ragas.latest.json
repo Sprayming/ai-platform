@@ -1,13 +1,13 @@
 {
-  "run_id": "20261119T081423-rag.ragas",
+  "run_id": "20261121T032558-rag.ragas",
   "suite": "rag.ragas",
   "project": "rag-knowledge-base",
   "generated_at": "",
   "mode": "full_hybrid",
   "dataset": {
     "name": "rag_golden",
-    "version": "unversioned",
-    "sha256": "990dc9035915",
+    "version": "v1",
+    "sha256": "990dc9035915a76f",
     "cases": 31
   },
   "model": null,
@@ -31,5 +31,29 @@
   },
   "per_case": [],
   "source_artifact": "/Users/sprayming/Documents/Trae-CN/temp_20261116_01/Courses/rag-knowledge-base/evaluation_ablation_full_hybrid.json",
-  "git_rev": "4ecb5c5"
+  "git_rev": "4ecb5c5",
+  "data_assets": [
+    {
+      "name": "rag_golden",
+      "version": "v1",
+      "sha256": "990dc9035915a76f",
+      "role": "evaluation_set"
+    },
+    {
+      "name": "rag_wiki",
+      "version": "v1",
+      "sha256": "0f57552929a5ba57",
+      "role": "knowledge_base"
+    }
+  ],
+  "experiment": {
+    "config": {
+      "adapter": "rag_ragas",
+      "artifact": "evaluation_ablation_full_hybrid.json",
+      "command": "",
+      "options": {
+        "dataset": "tests/golden_test_set.json"
+      }
+    }
+  }
 }

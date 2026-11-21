@@ -48,6 +48,17 @@ def load_all() -> dict[str, dict]:
     return result
 
 
+def for_suite(suite: str) -> list[tuple[dict, dict]]:
+    """返回套件实际消费的 (manifest, consumer) 对，评测集排在其他输入之前。"""
+    assets = [
+        (item, consumer)
+        for item in load_all().values()
+        for consumer in item.get("consumers") or []
+        if consumer["suite"] == suite
+    ]
+    return sorted(assets, key=lambda pair: pair[1]["role"] != "evaluation_set")
+
+
 def missing_source(manifest: dict) -> bool:
     """数据源文件是否不存在（换机器/未生成数据时会这样）。"""
     return not manifest["_source_path"].exists()

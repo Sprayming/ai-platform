@@ -9,18 +9,31 @@
 #   2. 有多个口径时必须指定 canonical（默认口径）
 #   3. 必须有负责人——没人负责的口径一定会漂
 #   4. 改动要留痕，写进 revisions
+#   5. 进门禁的评测指标必须登记，并写明 eval_keys；unit / 方向要与评测产物一致
+#   6. 能在数据上算的指标写 sql + expected，由 `metrics reconcile` 跑数对账
+#
+# 字段说明：
+#   eval_keys         该口径对应的评测指标，格式 "<suite>:<metric>"
+#   higher_is_better  指标方向，必须与评测产物一致（audit 会查）
+#   dataset           对账用的数据集名（必须是 manifests/ 里登记过的）
+#   variants[].sql    可执行 SQL，返回单行单值
+#   variants[].expected 该数据集版本下的口径基准值；数据集升版本必须重算
 
-version: v1
-updated_at: "2026-11-19"
+version: v2
+updated_at: "2026-11-20"
 owner: 周明
 
 metrics:
+  # ---------- 业务指标（可在 ride_ops 上跑数对账） ----------
+
   - id: redemption_rate
     name: 卡券核销率
     unit: ratio
+    higher_is_better: true
     owner: 周明
     canonical: issued
     aliases: [核销率, 券核销率]
+    dataset: ride_ops
     definition: 分子恒为已核销券数，分母随口径变化。三个口径不可混用，对外报告必须写明用的是哪一个。
     variants:
       - key: issued
@@ -28,20 +41,36 @@ metrics:
         numerator: 已核销券数
         denominator: 已发放券数
         formula: COUNT(coupons.status='used') / COUNT(coupons)
+        sql: >-
+          SELECT CAST(SUM(CASE WHEN status = 'used' THEN 1 ELSE 0 END) AS REAL)
+                 / NULLIF(COUNT(*), 0) FROM coupons
+        expected: 0.05
         scope: 运营周报、活动复盘；与 ride 项目 coupon_types 表的口径一致
       - key: claimed
         name: 领取口径
         numerator: 已核销券数
-        denominator: 已领取券数（不含未领取）
-        formula: COUNT(status='used') / COUNT(status IN ('claimed','used'))
-        scope: 渠道发放质量评估；发出但没人领的券不进分母
+        denominator: 已领取券数（本演示库所有券都已绑定司机，等于已发放数）
+        formula: COUNT(status='used') / COUNT(driver_id IS NOT NULL)
+        sql: >-
+          SELECT CAST(SUM(CASE WHEN status = 'used' THEN 1 ELSE 0 END) AS REAL)
+                 / NULLIF(SUM(CASE WHEN driver_id IS NOT NULL THEN 1 ELSE 0 END), 0)
+          FROM coupons
+        expected: 0.05
+        scope: 渠道发放质量评估；本演示库没有领取时间字段，claimed 与 issued 数值相同，只在真实数据上才有区分度
       - key: settled
         name: 结算口径（财务）
         numerator: 已核销券数
         denominator: 已结算订单数
         formula: COUNT(redemptions) / COUNT(orders WHERE status='completed')
+        sql: >-
+          SELECT (SELECT COUNT(*) FROM redemptions) * 1.0
+                 / NULLIF((SELECT COUNT(*) FROM orders WHERE status = 'completed'), 0)
+        expected: 0.02963
         scope: 财务对账与补贴结算；数值天然高于运营口径，禁止对外汇报
     revisions:
+      - date: "2026-11-20"
+        change: 补可执行 SQL 与基准值，纳入 reconcile 对账；登记 eval_keys 机制
+        by: 周明
       - date: "2026-11-19"
         change: 明确三种口径，指定发放口径为默认，财务口径单独命名 settled
         by: 周明
@@ -52,9 +81,11 @@ metrics:
   - id: order_completion_rate
     name: 订单完成率
     unit: ratio
+    higher_is_better: true
     owner: 周明
     canonical: all_orders
     aliases: [完成率, 完单率]
+    dataset: ride_ops
     definition: 完成单数占订单总数的比例；是否把取消单计入分母是最常见的分歧点。
     variants:
       - key: all_orders
@@ -62,14 +93,26 @@ metrics:
         numerator: 已完成订单数
         denominator: 全部订单数（含取消、退款）
         formula: COUNT(status='completed') / COUNT(orders)
+        sql: >-
+          SELECT CAST(SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) AS REAL)
+                 / NULLIF(COUNT(*), 0) FROM orders
+        expected: 0.84375
         scope: 对外经营看板
       - key: dispatched
         name: 派单口径
         numerator: 已完成订单数
         denominator: 已派单订单数（不含未派单）
         formula: COUNT(status='completed') / COUNT(status != 'created')
-        scope: 调度效率分析；未派出去的订单不算司机的责任
+        sql: >-
+          SELECT CAST(SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) AS REAL)
+                 / NULLIF(SUM(CASE WHEN status != 'created' THEN 1 ELSE 0 END), 0)
+          FROM orders
+        expected: 0.84375
+        scope: 调度效率分析；未派出去的订单不算司机的责任。注意演示数据没有 created 状态，两口径数值相同
     revisions:
+      - date: "2026-11-20"
+        change: 补 SQL 与基准值；记录演示数据下派单口径与全量口径数值重合
+        by: 周明
       - date: "2026-11-19"
         change: 新增派单口径，明确全量口径为默认
         by: 周明
@@ -77,6 +120,7 @@ metrics:
   - id: subsidy_roi
     name: 补贴 ROI
     unit: ratio
+    higher_is_better: true
     owner: 周明
     canonical: incremental
     aliases: [补贴投产比, ROI]
@@ -99,12 +143,16 @@ metrics:
         change: 拆出粗口径，结案只用增量口径
         by: 周明
 
+  # ---------- 评测指标：driver.intent ----------
+
   - id: intent_accuracy
     name: 意图识别准确率
     unit: ratio
+    higher_is_better: true
     owner: 周明
     canonical: valid
     aliases: [意图准确率]
+    eval_keys: ["driver.intent:accuracy"]
     definition: 主意图完全命中才算对。provider 报错的样本是否计入分母，会显著影响数字——默认剔除，同时单独报错误率。
     variants:
       - key: valid
@@ -120,16 +168,89 @@ metrics:
         formula: correct / total
         scope: 对外 SLA 承诺，把失败也当成失败
     revisions:
+      - date: "2026-11-20"
+        change: 登记 eval_keys 指向 driver.intent:accuracy
+        by: 周明
       - date: "2026-11-13"
         change: 429 限流导致兜底静默回退，补记 error_rate 并区分两种口径
         by: 周明
 
+  - id: intent_macro_f1
+    name: 意图识别宏平均 F1
+    unit: score
+    higher_is_better: true
+    owner: 周明
+    canonical: macro
+    eval_keys: ["driver.intent:macro_f1"]
+    definition: 各意图类别 F1 的算术平均，不按样本量加权；少数类被识别差时会明显低于 accuracy，所以两个数必须一起看。
+    variants:
+      - key: macro
+        name: 宏平均（默认）
+        numerator: 各意图类别 F1 之和
+        denominator: 意图类别数
+        formula: sum(F1_c) / len(classes)
+        scope: 发现长尾意图退化；accuracy 高但 macro-F1 低就是典型信号
+    revisions:
+      - date: "2026-11-20"
+        change: 首次登记，补上 eval_keys
+        by: 周明
+
+  - id: intent_latency
+    name: 意图识别延迟
+    unit: ms
+    higher_is_better: false
+    owner: 周明
+    canonical: p95
+    eval_keys: ["driver.intent:latency_avg_ms", "driver.intent:latency_p95_ms"]
+    definition: 端到端单次识别耗时（含规则匹配与语义兜底）。p95 比均值更能暴露长尾，门禁默认卡 p95。
+    variants:
+      - key: p95
+        name: P95 延迟（默认）
+        numerator: 第 95 百分位耗时
+        denominator: 1
+        formula: percentile(durations, 95)
+        scope: 线上体验与门禁；混合架构的价值主要体现在这里
+      - key: avg
+        name: 平均延迟
+        numerator: 全部耗时之和
+        denominator: 请求数
+        formula: sum(durations) / count
+        scope: 容量评估；会被少量极慢请求拉偏，不能单独用于门禁
+    revisions:
+      - date: "2026-11-20"
+        change: 首次登记，覆盖 avg 与 p95 两个评测指标
+        by: 周明
+
+  - id: provider_error_rate
+    name: provider 调用错误率
+    unit: ratio
+    higher_is_better: false
+    owner: 周明
+    canonical: all_requests
+    eval_keys: ["driver.intent:error_rate"]
+    definition: 模型 provider 调用失败（超时、限流、解析失败）占全部请求的比例。它不进入 accuracy 分母，所以必须单独盯。
+    variants:
+      - key: all_requests
+        name: 全量请求口径
+        numerator: provider 调用失败次数
+        denominator: 全部请求数
+        formula: failed_calls / total_requests
+        scope: 稳定性看板；混用 accuracy 时最容易掩盖的问题
+    revisions:
+      - date: "2026-11-20"
+        change: 首次登记，明确失败不进 accuracy 分母
+        by: 周明
+
+  # ---------- 评测指标：rag.ragas ----------
+
   - id: ragas_faithfulness
     name: RAG 忠实度
     unit: ratio
+    higher_is_better: true
     owner: 周明
     canonical: ragas
     aliases: [忠实度]
+    eval_keys: ["rag.ragas:faithfulness"]
     definition: 答案中能被检索上下文支持的陈述所占比例（RAGAS 定义）。低于阈值时宁可拒答，也不许编造。
     variants:
       - key: ragas
@@ -139,16 +260,103 @@ metrics:
         formula: supported_statements / total_statements
         scope: 知识库问答的幻觉拦截；按金标集逐题计算后取平均
     revisions:
+      - date: "2026-11-20"
+        change: 登记 eval_keys 指向 rag.ragas:faithfulness
+        by: 周明
       - date: "2026-11-10"
         change: 从 6 题试跑口径切到 25 题金标口径，数字不可与前版直接比较
+        by: 周明
+
+  - id: ragas_answer_relevancy
+    name: RAG 答案相关性
+    unit: ratio
+    higher_is_better: true
+    owner: 周明
+    canonical: ragas
+    eval_keys: ["rag.ragas:answer_relevancy"]
+    definition: 答案是否正面回答了问题（RAGAS 用答案反向生成问题的相似度衡量）。忠实但答非所问时，这个值会低。
+    variants:
+      - key: ragas
+        name: RAGAS 口径（默认）
+        numerator: 反向生成问题与原问题语义一致的题数
+        denominator: 评测题数
+        formula: sum(relevancy_score) / total_cases
+        scope: 拦截「检索对了但答偏了」；与 faithfulness 一起看才能定位问题在检索还是生成
+    revisions:
+      - date: "2026-11-20"
+        change: 首次登记
+        by: 周明
+
+  - id: ragas_context_precision
+    name: RAG 上下文精确率
+    unit: ratio
+    higher_is_better: true
+    owner: 周明
+    canonical: ragas
+    eval_keys: ["rag.ragas:context_precision"]
+    definition: 召回的上下文中，真正与答案相关的内容所占比例。衡量排序质量——相关文档是否排到了前面。
+    variants:
+      - key: ragas
+        name: RAGAS 口径（默认）
+        numerator: 相关上下文条数（加权排序位置）
+        denominator: 召回上下文总条数
+        formula: weighted_relevant / total_retrieved
+        scope: 检索融合与重排的效果评估；虚高通常来自召回过多无关文档
+    revisions:
+      - date: "2026-11-20"
+        change: 首次登记
+        by: 周明
+
+  - id: ragas_context_recall
+    name: RAG 上下文召回率
+    unit: ratio
+    higher_is_better: true
+    owner: 周明
+    canonical: ragas
+    eval_keys: ["rag.ragas:context_recall"]
+    definition: 标准答案的要点中，被检索上下文覆盖的比例。它低说明检索漏了，生成再强也补不回来。
+    variants:
+      - key: ragas
+        name: RAGAS 口径（默认）
+        numerator: 被上下文覆盖的答案要点数
+        denominator: 标准答案要点总数
+        formula: covered_points / total_points
+        scope: 与 context_precision 互为制衡：召回不够就加路数，精确率不够就加重排
+    revisions:
+      - date: "2026-11-20"
+        change: 首次登记
+        by: 周明
+
+  # ---------- 评测指标：ride.nl2sql ----------
+
+  - id: nl2sql_gold_pass_rate
+    name: NL2SQL 题目自检通过率
+    unit: ratio
+    higher_is_better: true
+    owner: 周明
+    canonical: gold
+    eval_keys: ["ride.nl2sql:gold_pass_rate"]
+    definition: gold SQL 自身在同一份数据上能否执行通过。它衡量的是「题目集有没有写错」，不涉及模型，必须恒为 1。
+    variants:
+      - key: gold
+        name: 题目自检口径（默认）
+        numerator: gold SQL 执行成功的题数
+        denominator: 全部评测题数
+        formula: gold_pass / total_cases
+        scope: 评测集自身的健康度；低于 1 说明题库坏了，此时任何模型指标都不可信
+    revisions:
+      - date: "2026-11-20"
+        change: 首次登记，明确它是题库健康度而非模型能力
         by: 周明
 
   - id: nl2sql_execution_accuracy
     name: NL2SQL 执行准确率
     unit: ratio
+    higher_is_better: true
     owner: 周明
     canonical: strict
     aliases: [执行准确率, 执行精度]
+    eval_keys: ["ride.nl2sql:execution_accuracy"]
     definition: 以「生成的 SQL 与 gold SQL 在同一份数据上的执行结果集是否相等」判定，不做字符串比对。列数多余但数值正确算不算对，是两种口径的分界。
     variants:
       - key: strict
@@ -164,9 +372,52 @@ metrics:
         formula: matched_core_columns / total_cases
         scope: 仅用于归因分析，不能替代严格口径
     revisions:
+      - date: "2026-11-20"
+        change: 登记 eval_keys 指向 ride.nl2sql:execution_accuracy
+        by: 周明
       - date: "2026-11-19"
         change: 明确严格/宽松两种口径，门禁只用严格口径
         by: 周明
       - date: "2026-08-16"
         change: 首次跑出严格执行准确率 15/22，并逐题归因
+        by: 周明
+
+  - id: nl2sql_semantic_accuracy
+    name: 语义层口径命中率
+    unit: ratio
+    higher_is_better: true
+    owner: 周明
+    canonical: same_scale
+    eval_keys: ["ride.nl2sql:semantic_accuracy"]
+    definition: 只在「语义层可表达且口径与 gold 一致」的子集上算命中率。分母与 execution_accuracy 不同，两个数不能直接比大小。
+    variants:
+      - key: same_scale
+        name: 同口径子集（默认）
+        numerator: 语义层计划与 gold 口径一致的题数
+        denominator: 语义层可表达且口径一致的题数
+        formula: same_scale_hits / len(same_scale)
+        scope: 衡量受控计划通道本身的质量；分母很小，单题波动就会大幅改变数值
+    revisions:
+      - date: "2026-11-20"
+        change: 首次登记；明确分母是同口径子集，不是全部题数
+        by: 周明
+
+  - id: nl2sql_semantic_coverage
+    name: 语义层可表达覆盖率
+    unit: ratio
+    higher_is_better: true
+    owner: 周明
+    canonical: all_cases
+    eval_keys: ["ride.nl2sql:semantic_coverage"]
+    definition: 语义层能表达的题数占全部题数的比例。它低意味着受控通道覆盖不足，只能回落到自由 SQL，安全边界随之变弱。
+    variants:
+      - key: all_cases
+        name: 全量题集口径（默认）
+        numerator: 语义层可表达题数
+        denominator: 全部评测题数
+        formula: len(semantic_cases) / total_cases
+        scope: 受控通道的覆盖度；与自由 SQL 通道的比例互补
+    revisions:
+      - date: "2026-11-20"
+        change: 首次登记
         by: 周明

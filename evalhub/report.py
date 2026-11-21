@@ -42,6 +42,9 @@ td.num { text-align: right; font-variant-numeric: tabular-nums; width: 110px; }
 .badge { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 11px; }
 .pass { background: #ecfdf5; color: #047857; }
 .block { background: #fef2f2; color: #b91c1c; }
+.notice { margin: -8px 0 16px; padding: 10px 14px; border-radius: 8px; font-size: 12px; }
+.notice.error { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
+.notice.warn { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
 .empty { color: #9ca3af; padding: 12px 16px; }
 """
 
@@ -63,15 +66,21 @@ def _delta_text(delta: float | None, unit: str = "") -> str:
     return f"{sign}{delta:.4f}"
 
 
-def render(runs: list[dict], deltas: list[MetricDelta] | None = None) -> str:
+def render(
+    runs: list[dict],
+    deltas: list[MetricDelta] | None = None,
+    notices: list[dict] | None = None,
+) -> str:
     """把一次批量运行渲染成 HTML。"""
     deltas = deltas or []
+    notices = notices or []
     by_suite: dict[str, list[MetricDelta]] = {}
     for row in deltas:
         by_suite.setdefault(row.suite, []).append(row)
 
-    overall = "通过" if all(r.passed for r in deltas) else "未通过"
-    overall_cls = "pass" if all(r.passed for r in deltas) else "block"
+    blocked = any(n.get("level") == "error" for n in notices)
+    overall = "通过" if all(r.passed for r in deltas) and not blocked else "未通过"
+    overall_cls = "pass" if overall == "通过" else "block"
     now = datetime.now().strftime("%Y-%m-%d %H:%M")
 
     parts = [
@@ -83,6 +92,10 @@ def render(runs: list[dict], deltas: list[MetricDelta] | None = None) -> str:
         f"<div class='meta'>生成于 {now}　|　套件 {len(runs)} 个　|　门禁结果",
         f" <span class='badge {overall_cls}'>{overall}</span></div>",
     ]
+
+    for notice in notices:
+        level = "error" if notice.get("level") == "error" else "warn"
+        parts.append(f"<div class='notice {level}'>{html.escape(notice.get('message', ''))}</div>")
 
     for run in runs:
         ds = run.get("dataset", {})
@@ -150,9 +163,40 @@ def render(runs: list[dict], deltas: list[MetricDelta] | None = None) -> str:
     return "".join(parts)
 
 
-def write(path: str | Path, runs: list[dict], deltas: list[MetricDelta] | None = None) -> Path:
+def write(
+    path: str | Path,
+    runs: list[dict],
+    deltas: list[MetricDelta] | None = None,
+    notices: list[dict] | None = None,
+) -> Path:
     """渲染并写入文件。"""
     target = Path(path)
     target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(render(runs, deltas), encoding="utf-8")
+    target.write_text(render(runs, deltas, notices), encoding="utf-8")
     return target
+
+
+def render_trend(suite: str, records: list[dict]) -> str:
+    """把多次运行渲染成指标走势表（CLI 用，不引图表库）。"""
+    if not records:
+        return f"{suite}: 还没有历史记录（跑一次 evalhub run 后自动累积）"
+
+    metrics = sorted({name for record in records for name in (record.get("metrics") or {})})
+    header = f"{'METRIC':<22}" + "".join(f"{'#' + str(i + 1):>10}" for i in range(len(records)))
+    lines = [f"{suite}（最近 {len(records)} 次）", header, "-" * len(header)]
+
+    for name in metrics:
+        cells = []
+        for record in records:
+            value = (record.get("metrics") or {}).get(name)
+            cells.append(f"{'—' if value is None else f'{value:.4f}':>10}")
+        lines.append(f"{name:<22}" + "".join(cells))
+
+    fingerprints = [record.get("dataset_sha256") for record in records]
+    distinct = {item for item in fingerprints if item}
+    if len(distinct) > 1:
+        lines.append("")
+        lines.append(
+            f"  注意：期间数据集指纹变过（{fingerprints[0]} → {fingerprints[-1]}），前后数值不可直接比较"
+        )
+    return "\n".join(lines)

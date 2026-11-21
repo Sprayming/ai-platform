@@ -1,13 +1,13 @@
 {
-  "run_id": "20261119T081423-driver.intent",
+  "run_id": "20261121T032557-driver.intent",
   "suite": "driver.intent",
   "project": "driver-coupon-refund-agent",
   "generated_at": "2026-11-08T17:59:00",
   "mode": "hybrid",
   "dataset": {
-    "name": "driver_intent",
-    "version": "unknown",
-    "sha256": "",
+    "name": "driver_intent_cases",
+    "version": "v1",
+    "sha256": "53b0679aba7ac94c",
     "cases": 56
   },
   "model": "Qwen/Qwen2.5-7B-Instruct",
@@ -49,5 +49,24 @@
     }
   ],
   "source_artifact": "/Users/sprayming/Documents/Trae-CN/temp_20261116_01/Courses/driver-coupon-refund-agent/backend/evals/reports/intent_bakeoff_final.json",
-  "git_rev": "8ec1d3b"
+  "git_rev": "8ec1d3b",
+  "data_assets": [
+    {
+      "name": "driver_intent_cases",
+      "version": "v1",
+      "sha256": "53b0679aba7ac94c",
+      "role": "evaluation_set"
+    }
+  ],
+  "experiment": {
+    "config": {
+      "adapter": "driver_intent",
+      "artifact": "backend/evals/reports/intent_bakeoff_final.json",
+      "command": "",
+      "options": {
+        "provider": "hybrid",
+        "dataset": "backend/evals/intent_cases.yml"
+      }
+    }
+  }
 }

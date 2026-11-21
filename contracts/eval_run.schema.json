@@ -37,6 +37,33 @@
         "cases": { "type": "integer", "minimum": 0 }
       }
     },
+    "data_assets": {
+      "type": "array",
+      "description": "本次运行实际消费的全部数据资产；指纹统一取注册表快照的 16 位 SHA-256",
+      "items": {
+        "type": "object",
+        "required": ["name", "version", "sha256", "role"],
+        "additionalProperties": false,
+        "properties": {
+          "name": { "type": "string" },
+          "version": { "type": "string" },
+          "sha256": { "type": "string", "pattern": "^[0-9a-f]{16}$" },
+          "role": {
+            "type": "string",
+            "enum": ["evaluation_set", "knowledge_base", "execution_database"]
+          }
+        }
+      }
+    },
+    "experiment": {
+      "type": "object",
+      "description": "本次实际使用的套件入口与适配器配置；模型仍由 model 字段记录",
+      "required": ["config"],
+      "additionalProperties": false,
+      "properties": {
+        "config": { "type": "object" }
+      }
+    },
     "model": { "type": ["string", "null"] },
     "metrics": {
       "type": "object",

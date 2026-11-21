@@ -19,8 +19,11 @@ suites:
     artifact: backend/evals/reports/intent_bakeoff_final.json
     # 已有产物就直接读；要重跑就把下面这行解开
     # command: .venv/bin/python -m backend.evals.intent_bakeoff --provider hybrid
+    # 报告是历史产物不带 dataset 字段，由 adapter 按这份题目集算指纹
+    required_metrics: [accuracy, macro_f1, latency_p95_ms, error_rate]
     options:
       provider: hybrid
+      dataset: backend/evals/intent_cases.yml
 
   rag.ragas:
     project: ../rag-knowledge-base
@@ -29,6 +32,7 @@ suites:
     artifact: evaluation_ablation_full_hybrid.json
     # 跑一次真实评测需要：起服务 + ragas + 模型 key，所以默认只读既有产物
     # command: .venv/bin/python scripts/run_ragas_eval.py
+    # 这个套件两种产物格式（RAGAS / 问答闸门）指标集合不同，不用 required 写死
     options:
       dataset: tests/golden_test_set.json
 
@@ -38,4 +42,6 @@ suites:
     artifact: eval/nl2sql/reports/latest.json
     # 无 LLM key 时只校验 gold SQL，有 key 时加 --with-llm 跑真实准确率
     command: .venv/bin/python eval/nl2sql/run_eval.py --seed 42 --json-out eval/nl2sql/reports/latest.json
+    # execution_accuracy 在 gold_only 模式下值为 null（合法），但键必须存在
+    required_metrics: [gold_pass_rate, execution_accuracy, semantic_accuracy, semantic_coverage]
     options: {}

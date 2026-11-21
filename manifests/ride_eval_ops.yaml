@@ -1,0 +1,20 @@
+name: ride_eval_ops
+version: v2
+project: ../ride-hailing-analytics-system
+kind: sqlite
+source: data/eval_nl2sql.db
+tables:
+  - drivers
+  - coupon_types
+  - coupons
+  - orders
+  - redemptions
+seed: 42
+generator: eval/nl2sql/run_eval.py
+owner: 周明
+consumers:
+  - suite: ride.nl2sql
+    role: execution_database
+quality:
+  non_empty_tables: [drivers, coupon_types, coupons, orders, redemptions]
+notes: ride.nl2sql 实际执行 gold SQL 的独立评测库，由 run_eval.py 按 seed 42 重建。与 ride_ops 业务指标对账库内容不同，不共用指纹或 expected。

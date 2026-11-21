@@ -50,6 +50,35 @@
       "type": "string",
       "description": "口径与内容的责任人"
     },
+    "consumers": {
+      "type": "array",
+      "description": "哪些评测套件实际消费这份数据，以及消费角色；只声明真实执行依赖",
+      "items": {
+        "type": "object",
+        "required": ["suite", "role"],
+        "additionalProperties": false,
+        "properties": {
+          "suite": { "type": "string", "pattern": "^[a-z0-9]+\\.[a-z0-9_]+$" },
+          "role": {
+            "type": "string",
+            "enum": ["evaluation_set", "knowledge_base", "execution_database"]
+          }
+        }
+      }
+    },
+    "quality": {
+      "type": "object",
+      "description": "最低数据质量要求；strict 校验中违反即拦截",
+      "additionalProperties": false,
+      "properties": {
+        "min_cases": { "type": "integer", "minimum": 1 },
+        "non_empty_tables": {
+          "type": "array",
+          "items": { "type": "string" },
+          "uniqueItems": true
+        }
+      }
+    },
     "notes": { "type": "string" }
   }
 }

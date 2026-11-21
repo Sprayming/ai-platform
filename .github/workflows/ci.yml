@@ -1,0 +1,31 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: 安装依赖
+        run: pip install -r requirements.txt
+
+      # 本仓库 CI 只跑不依赖兄弟仓库数据的检查：
+      # driver / rag / ride 不在这个仓库里，verify 与 reconcile 交给本地 scripts/ci.sh。
+      - name: 口径字典完整性
+        run: python -m datahub.cli metrics check
+
+      - name: 门禁指标可追溯
+        run: python -m datahub.cli metrics audit
+
+      # 读入库的 baselines 与 history 最后一行做比对，不需要重新跑评测
+      - name: 回归门禁（按历史最新一次）
+        run: python -m evalhub.cli gate --all --from-history
+
+      - name: 单元测试
+        run: python -m pytest -q

@@ -10,4 +10,9 @@ tables:
 seed: null
 generator: null
 owner: 周明
+consumers:
+  - suite: rag.ragas
+    role: knowledge_base
+quality:
+  non_empty_tables: [wiki_pages]
 notes: 知识页、元信息与审核记录。页面由人工整理+Few-shot 生成，没有生成脚本，所以不声明 seed；改动内容必须升版本。
